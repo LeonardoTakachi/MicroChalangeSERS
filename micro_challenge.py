@@ -10,7 +10,6 @@ def obter_base_equipamentos():
         "7": {"nome": "Notebook", "categoria": "Escritório", "potencia": 65}
     }
 
-
 def exibir_menu(base_dados):
     print("\n--- EQUIPAMENTOS DISPONÍVEIS ---")
 
