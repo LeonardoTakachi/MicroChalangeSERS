@@ -4,7 +4,7 @@ while True:
         # Base de dados exigida pelo enunciado
         return {
             "1": {"nome": "Geladeira", "cômodo": "Cozinha", "potencia": 250},
-            "2": {"nome": "Chuveiro Elétrico", "ccômodo": "Banho", "potencia": 5500},
+            "2": {"nome": "Chuveiro Elétrico", "cômodo": "Banho", "potencia": 5500},
             "3": {"nome": "Ar Condicionado", "cômodo": "Climatização", "potencia": 1200},
             "4": {"nome": "Televisão", "categoria": "Entretenimento", "potencia": 100},
             "5": {"nome": "Lâmpada LED", "categoria": "Iluminação", "potencia": 10},
@@ -77,6 +77,22 @@ while True:
         print("-" * 60)
         print(f"CONSUMO TOTAL DA RESIDÊNCIA: {total_consumo_casa:.2f} kWh/mês")
         print(f"==================================================")
+
+
+    # PB09: T01 e T02
+    def obter_valor_kwh():
+        while True:
+            try:
+                valor = int(input("\nDigite o valor de kWh da sua conta de luz (R$): "))
+
+                if valor <= 0:
+                    print("Erro: o valor do kWh tem que ser maior que zero.")
+                else:
+                    return valor
+            except ValueError:
+                print("Erro: digite um valor monetário válido.")
+        
+
  
     if __name__ == "__main__":
         executar_sistema()
