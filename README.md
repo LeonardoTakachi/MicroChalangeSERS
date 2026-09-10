@@ -1,16 +1,18 @@
 # MicroChalangeSERS
 
-Sistema em Python para **dimensionamento energético residencial**, desenvolvido para cadastrar imóveis, cômodos e equipamentos, calcular o consumo mensal de energia e estimar o custo mensal da residência.
+Projeto desenvolvido em Python para dimensionamento energético residencial. O sistema permite cadastrar um imóvel, seus cômodos e equipamentos, calcular o consumo mensal de energia e estimar o custo mensal da residência com base no valor do kWh informado pelo usuário.
 
-## 🎯 Objetivo
+## Objetivo
 
-O projeto tem como objetivo permitir que o usuário informe os equipamentos existentes em uma residência, a quantidade de unidades e o tempo médio de uso diário para calcular:
+O objetivo do projeto é organizar as informações de consumo de uma residência e realizar o cálculo mensal de energia de forma simples e estruturada.
 
-- consumo mensal de cada equipamento;
-- consumo total mensal do imóvel;
-- custo mensal estimado de energia elétrica.
+O sistema calcula:
 
-## ⚙️ Funcionalidades
+- o consumo mensal de cada equipamento;
+- o consumo total mensal da residência;
+- o custo mensal estimado de energia elétrica.
+
+## Funcionalidades
 
 - Cadastro e identificação do imóvel;
 - Cadastro de múltiplos cômodos;
@@ -20,18 +22,15 @@ O projeto tem como objetivo permitir que o usuário informe os equipamentos exis
 - Cadastro das horas de uso diário;
 - Validação de entradas numéricas;
 - Rejeição de valores negativos ou iguais a zero;
-- Cálculo do consumo mensal em `kWh/mês`;
+- Cálculo do consumo mensal em kWh/mês;
 - Cálculo do consumo total da residência;
-- Entrada do valor do kWh da conta de energia;
-- Estimativa do custo mensal em reais (`R$`);
-- Relatório final com os equipamentos cadastrados e seus respectivos consumos;
-- Possibilidade de cadastrar mais de um imóvel durante a execução.
+- Entrada do valor do kWh;
+- Cálculo do custo mensal estimado;
+- Exibição de relatório final com os dados cadastrados.
 
-## 🧮 Cálculos utilizados
+## Cálculos utilizados
 
 ### Consumo mensal
-
-O consumo mensal de cada equipamento é calculado pela fórmula:
 
 ```text
 Consumo (kWh/mês) = Potência (W) × Quantidade × Horas/dia × 30 / 1000
@@ -43,34 +42,25 @@ Consumo (kWh/mês) = Potência (W) × Quantidade × Horas/dia × 30 / 1000
 Custo mensal (R$) = Consumo total (kWh/mês) × Valor do kWh
 ```
 
-## 🗂️ Product Backlog
+## Product Backlog
 
-O desenvolvimento foi organizado com base nos seguintes itens do Product Backlog:
+O desenvolvimento foi organizado a partir dos itens definidos no Product Backlog:
 
-- **PB01 — Imóvel:** cadastro e validação da identificação do imóvel;
-- **PB02 — Cômodo:** cadastro, validação e associação de múltiplos cômodos;
-- **PB04 — Consumo:** entrada dos dados e cálculo do consumo mensal;
-- **PB06 — Relatório / Consumo Total:** soma e apresentação do consumo total;
-- **PB09 — Custo:** cálculo e apresentação do custo mensal estimado.
+- PB01 - Imóvel;
+- PB02 - Cômodo;
+- PB04 - Consumo;
+- PB06 - Relatório / Consumo Total;
+- PB09 - Custo.
 
-As Tasks do backlog também estão identificadas diretamente no código por comentários como:
+As Tasks correspondentes também estão identificadas no código por meio de comentários, facilitando a relação entre implementação e backlog.
 
-```python
-# PB01 - T02
-# PB02 - T04
-# PB04 - T05
-# PB06 - T03
-# PB09 - T04
-```
+## Kanban
 
-## 📋 Kanban / Trello
+O acompanhamento das atividades foi realizado por meio de um quadro Kanban no Trello:
 
-O planejamento e acompanhamento das Tasks do projeto foram realizados por meio de um quadro Kanban no Trello.
-
-🔗 **Trello — CP4 SERS:**  
 https://trello.com/b/fr7tB7n4/cp4-sers
 
-## 🗃️ Estrutura do repositório
+## Estrutura do repositório
 
 ```text
 MicroChalangeSERS/
@@ -80,57 +70,44 @@ MicroChalangeSERS/
 └── README.md
 ```
 
-## 🛠️ Tecnologias utilizadas
+## Tecnologias utilizadas
 
 - Python 3
 - Git
 - GitHub
 - Trello
 
-O projeto utiliza apenas recursos nativos do Python e não necessita de bibliotecas externas.
+O projeto utiliza apenas recursos nativos do Python e não depende de bibliotecas externas.
 
-## ▶️ Como executar
+## Como executar
 
-### 1. Clone o repositório
+Clone o repositório:
 
 ```bash
 git clone https://github.com/LeonardoTakachi/MicroChalangeSERS.git
 ```
 
-### 2. Entre na pasta do projeto
+Acesse a pasta do projeto:
 
 ```bash
 cd MicroChalangeSERS
 ```
 
-### 3. Execute o programa
+Execute o programa:
 
 ```bash
 python micro_challenge.py
 ```
 
-Em alguns ambientes, pode ser necessário utilizar:
+Caso necessário, utilize:
 
 ```bash
 python3 micro_challenge.py
 ```
 
-## 💡 Exemplo de funcionamento
+## Integrantes
 
-Durante a execução, o sistema solicita informações como:
-
-```text
-Nome do imóvel: Casa Principal
-Quantidade de cômodos: 2
-Nome do cômodo: Sala
-Equipamento: Televisão
-Quantidade: 2
-Horas de uso por dia: 5
-Valor do kWh: R$ 0,95
-```
-
-Ao final, o programa apresenta um relatório com o consumo mensal dos equipamentos, o consumo total da residência e o custo mensal estimado.
-
-## 📌 Status
-
-Projeto desenvolvido e organizado de acordo com as Tasks definidas no Product Backlog e acompanhadas pelo quadro Kanban do Trello.
+- Daniel Vieira Santos - RM 573326
+- Gustavo Bitencourt Lopes - RM 568885
+- Giovane Salazar Fioravante - RM 570396
+- Leonardo Basile Takachi - RM 569066
