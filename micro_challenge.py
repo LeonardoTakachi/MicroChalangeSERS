@@ -21,7 +21,17 @@ while True:
         base_dados = obter_base_equipamentos()
        
         print("=== CADASTRO DO IMÓVEL ===")
-        imovel = input("Digite o nome/identificação do imóvel: ")
+        nome_imovel = input("Digite o nome/identificação do imóvel: ")
+
+        while nome_imovel == "":
+            print("O nome do imóvel não pode ser vazio. Por favor, digite novamente.")
+            nome_imovel = input("Digite o nome/identificação do imóvel: ").strip()
+        
+        imovel = {
+            "nome": nome_imovel,
+            "comodos": []
+            }
+        
        
         # 1. Usuário escolhe a quantidade de cômodos
         qtd_comodos = int(input("\nQuantos cômodos tem na casa? "))
@@ -31,7 +41,18 @@ while True:
  
         # Loop para percorrer cada cômodo escolhido pelo usuário
         for i in range(qtd_comodos):
-            nome_comodo = input(f"\nDigite o nome do cômodo {i+1} (ex: Sala, Cozinha, Quarto): ")
+            nome_comodo = input(f"\nDigite o nome do cômodo {i+1} (ex: Sala, Cozinha, Quarto): ").strip()
+            
+            while nome_comodo == "":
+                print("O nome do cômodo não pode ser vazio. Por favor, digite novamente.")
+                nome_comodo = input(f"Digite o nome do cômodo {i+1} (ex: Sala, Cozinha, Quarto): ").strip()
+            
+            comodo = {
+                "nome": nome_comodo,
+                "equipamentos": []
+            }
+            
+            imovel["comodos"].append(comodo)
            
             # 2. Usuário escolhe quantos equipamentos tem NESTE cômodo específico
             qtd_equipamentos = int(input(f"Quantos equipamentos tem no(a) {nome_comodo}? "))
@@ -47,8 +68,25 @@ while True:
                     equip = base_dados[opcao]
                    
                     # Usuário define as quantidades e tempo de uso do aparelho escolhido
-                    qtd = int(input(f"Quantas unidades de '{equip['nome']}' tem nesse cômodo? "))
-                    horas = float(input(f"Quantas horas por dia cada um fica ligado? "))
+                    while True:
+                        try:
+                            qtd = int(input(f"Qunatas unidades de '{equip['nome']}' tem nesse cômodo? "))
+                            if qtd <= 0:
+                                print("Quantidade não pode ser zero ou negativa. Por favor, digite um número inteiro positivo.")
+                            else:
+                                break
+                        except ValueError:
+                            print("Valor inválido! Por favor, digite um número inteiro.")
+                            
+                    while True:
+                        try:
+                            horas = float(input("Quantas horas por dia cada um fica ligado? "))
+                            if horas <= 0:
+                                print("Horas não pode ser zero ou negativa. Por favor, digite um número positivo.")
+                            else:
+                                break
+                        except ValueError:
+                            print("Valor inválido! Por favor, digite um número.")   
                    
                     # Cálculo do consumo mensal (Watts * Qtd * Horas * 30 dias / 1000)
                     consumo_mes = (equip['potencia'] * qtd * horas * 30) / 1000
