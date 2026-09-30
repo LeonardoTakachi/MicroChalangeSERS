@@ -10,6 +10,7 @@ def obter_base_equipamentos():
         "7": {"nome": "Notebook", "categoria": "Escritório", "potencia": 65}
     }
 
+
 def exibir_menu(base_dados):
     print("\n--- EQUIPAMENTOS DISPONÍVEIS ---")
 
@@ -70,16 +71,12 @@ def executar_sistema():
             )
 
             if qtd_comodos <= 0:
-                print(
-                    "A quantidade de cômodos deve ser maior que zero."
-                )
+                print("A quantidade de cômodos deve ser maior que zero.")
             else:
                 break
 
         except ValueError:
-            print(
-                "Valor inválido! Digite um número inteiro."
-            )
+            print("Valor inválido! Digite um número inteiro.")
 
     total_consumo_casa = 0
     relatorio_itens = []
@@ -132,19 +129,15 @@ def executar_sistema():
                     break
 
             except ValueError:
-                print(
-                    "Valor inválido! Digite um número inteiro."
-                )
+                print("Valor inválido! Digite um número inteiro.")
 
         for j in range(qtd_equipamentos):
-
             print(
                 f"\n-> Escolhendo o item {j + 1} "
                 f"do(a) {nome_comodo}:"
             )
 
             while True:
-
                 exibir_menu(base_dados)
 
                 opcao = input(
@@ -207,9 +200,7 @@ def executar_sistema():
                         break
 
                 except ValueError:
-                    print(
-                        "Valor inválido! Digite um número."
-                    )
+                    print("Valor inválido! Digite um número.")
 
             # PB04 - T05
             consumo_mes = (
@@ -232,7 +223,6 @@ def executar_sistema():
             }
 
             comodo["equipamentos"].append(item)
-
             relatorio_itens.append(item)
 
     # PB09 - T01 e T02
@@ -244,32 +234,36 @@ def executar_sistema():
     # PB09 - T04
     custo_total = consumo_total * valor_kwh
 
-    print("\n==================================================")
-    print(
-        f"RESUMO DE CONSUMO - "
-        f"{imovel['nome'].upper()}"
-    )
-    print("==================================================")
+    # PB10 - T01 a T04
+    # Recuperar os itens e calcular o custo usando a tarifa informada.
+    for item in relatorio_itens:
+        item["custo"] = item["consumo"] * valor_kwh
+
+    print("\n" + "=" * 85)
+    print(f"RESUMO DE CONSUMO - {imovel['nome'].upper()}")
+    print("=" * 85)
 
     print(
         f"{'Cômodo':<15} | "
         f"{'Equipamento':<18} | "
         f"{'Qtd':<4} | "
-        f"{'Consumo Mensal'}"
+        f"{'Consumo Mensal':<18} | "
+        f"{'Custo Mensal'}"
     )
 
-    print("-" * 70)
+    print("-" * 85)
 
-    # PB04 - T06
+    # PB04 - T06 / PB10 - T05 e T06
     for item in relatorio_itens:
         print(
             f"{item['comodo']:<15} | "
             f"{item['nome']:<18} | "
             f"{item['qtd']:<4} | "
-            f"{item['consumo']:.2f} kWh/mês"
+            f"{item['consumo']:>10.2f} kWh/mês | "
+            f"R$ {item['custo']:.2f}"
         )
 
-    print("-" * 70)
+    print("-" * 85)
 
     # PB06 - T04 e T05
     print(
@@ -278,23 +272,18 @@ def executar_sistema():
     )
 
     # PB09 - T05 e T06
-    print(
-        f"VALOR DO kWh: "
-        f"R$ {valor_kwh:.2f}"
-    )
+    print(f"VALOR DO kWh: R$ {valor_kwh:.2f}")
 
     print(
         f"CUSTO MENSAL ESTIMADO: "
         f"R$ {custo_total:.2f}"
     )
 
-    print("==================================================")
+    print("=" * 85)
 
 
 if __name__ == "__main__":
-
     while True:
-
         executar_sistema()
 
         while True:
@@ -308,14 +297,8 @@ if __name__ == "__main__":
                 break
 
             except ValueError:
-                print(
-                    "Valor inválido! Digite um número."
-                )
+                print("Valor inválido! Digite um número.")
 
         if cadastro == 2:
-            print(
-                "Muito obrigado, finalizando sistema..."
-            )
+            print("Muito obrigado, finalizando sistema...")
             break
-
-
