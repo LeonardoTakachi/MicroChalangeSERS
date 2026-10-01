@@ -36,25 +36,86 @@ def obter_valor_kwh():
             print("Erro: digite um valor monetário válido.")
 
 
-# PB11 - T01 a T06
+# PB11 - T01 a T05
+def remover_equipamento(imovel, relatorio_itens):
+    # PB11 - T01: listar os equipamentos cadastrados na residência
+    print("\n--- EQUIPAMENTOS CADASTRADOS ---")
+
+    for numero, item in enumerate(relatorio_itens, start=1):
+        print(
+            f"[{numero}] {item['comodo']} - {item['nome']} "
+            f"(qtd: {item['qtd']}, {item['consumo']:.2f} kWh/mês)"
+        )
+
+    # PB11 - T02: selecionar o equipamento que será removido
+    while True:
+        try:
+            escolha = int(
+                input(
+                    "Digite o número do equipamento a remover "
+                    "(0 para cancelar): "
+                )
+            )
+
+            if escolha == 0:
+                print("Remoção cancelada.")
+                return False
+
+            if 1 <= escolha <= len(relatorio_itens):
+                break
+
+            print(
+                "Opção inválida! Digite um número entre "
+                f"1 e {len(relatorio_itens)}."
+            )
+
+        except ValueError:
+            print("Valor inválido! Digite um número inteiro.")
+
+    item = relatorio_itens[escolha - 1]
+
+    # PB11 - T03: solicitar confirmação da remoção
+    confirmacao = input(
+        f"Confirma a remoção de '{item['nome']}' "
+        f"do(a) {item['comodo']}? (s/n): "
+    ).strip().lower()
+
+    if confirmacao != "s":
+        print("Remoção cancelada.")
+        return False
+
+    # PB11 - T04: remover o equipamento selecionado
+    del relatorio_itens[escolha - 1]
+
+    # PB11 - T05: atualizar os dados armazenados (equipamentos do cômodo)
+    for comodo in imovel["comodos"]:
+        comodo["equipamentos"] = [
+            e for e in comodo["equipamentos"] if e is not item
+        ]
+
+    print(f"'{item['nome']}' removido com sucesso.")
+    return True
+
+
+# Resumo do dimensionamento (extra, fora da ficha)
 def exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total):
-    # PB11 - T02: contar a quantidade de cômodos
+    # contar a quantidade de cômodos
     qtd_comodos = len(imovel["comodos"])
 
-    # PB11 - T03: somar as unidades de todos os equipamentos
+    # somar as unidades de todos os equipamentos
     total_unidades = sum(item["qtd"] for item in relatorio_itens)
 
-    # PB11 - T05: formatar e exibir o resumo
+    # formatar e exibir o resumo
     print("\n" + "=" * 85)
     print("RESUMO DO DIMENSIONAMENTO")
     print("=" * 85)
 
-    # PB11 - T01: recuperar o nome do imóvel
+    # nome do imóvel
     print(f"Imóvel: {imovel['nome']}")
     print(f"Quantidade de cômodos: {qtd_comodos}")
     print(f"Quantidade de equipamentos: {total_unidades}")
 
-    # PB11 - T04: exibir consumo total e custo mensal estimado
+    # consumo total e custo mensal estimado
     print(f"Consumo total: {consumo_total:.2f} kWh/mês")
     print(f"Valor do kWh: R$ {valor_kwh:.2f}")
     print(f"Custo mensal estimado: R$ {custo_total:.2f}")
@@ -250,6 +311,20 @@ def executar_sistema():
             comodo["equipamentos"].append(item)
             relatorio_itens.append(item)
 
+    # PB11 - T01 a T05
+    while relatorio_itens:
+        resposta = input(
+            "\nDeseja remover algum equipamento? (s/n): "
+        ).strip().lower()
+
+        if resposta != "s":
+            break
+
+        remover_equipamento(imovel, relatorio_itens)
+
+    # PB11 - T06
+    total_consumo_casa = sum(item["consumo"] for item in relatorio_itens)
+
     # PB09 - T01 e T02
     valor_kwh = obter_valor_kwh()
 
@@ -277,6 +352,10 @@ def executar_sistema():
     )
 
     print("-" * 85)
+
+    # PB11 - T07
+    if not relatorio_itens:
+        print("Nenhum equipamento cadastrado.")
 
     # PB04 - T06 / PB10 - T05 e T06
     for item in relatorio_itens:
@@ -306,7 +385,7 @@ def executar_sistema():
 
     print("=" * 85)
 
-    # PB11 - T01 a T05
+    # Resumo do dimensionamento (extra, fora da ficha)
     exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total)
 
 
