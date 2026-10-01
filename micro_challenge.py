@@ -97,6 +97,109 @@ def remover_equipamento(imovel, relatorio_itens):
     return True
 
 
+# PB14 - T03: comparar o consumo mensal de dois equipamentos
+def consome_mais(equip_a, equip_b):
+    return equip_a["consumo"] > equip_b["consumo"]
+
+
+# PB14 - T04: ordenar os equipamentos do maior para o menor consumo
+# (insertion sort, usando a comparação do T03)
+def ordenar_por_consumo(equipamentos):
+    ordenados = equipamentos.copy()
+
+    for i in range(1, len(ordenados)):
+        atual = ordenados[i]
+        j = i - 1
+
+        while j >= 0 and consome_mais(atual, ordenados[j]):
+            ordenados[j + 1] = ordenados[j]
+            j -= 1
+
+        ordenados[j + 1] = atual
+
+    return ordenados
+
+
+# PB14 - T01 a T05 e T07
+def exibir_ranking_consumo(imovel, qtd_destaque=3):
+    # PB14 - T01: recuperar os equipamentos e seus consumos mensais
+    # PB14 - T02: associar cada equipamento ao seu respectivo cômodo
+    equipamentos = []
+
+    for comodo in imovel["comodos"]:
+        for equip in comodo["equipamentos"]:
+            equipamentos.append({
+                "comodo": comodo["nome"],
+                "nome": equip["nome"],
+                "consumo": equip["consumo"]
+            })
+
+    print("\n" + "=" * 85)
+    print("RANKING DE CONSUMO DOS EQUIPAMENTOS (maior -> menor)")
+    print("=" * 85)
+
+    if not equipamentos:
+        print("Nenhum equipamento cadastrado.")
+        print("=" * 85)
+        return
+
+    # PB14 - T03 e T04: comparar e ordenar pelo consumo
+    ranking = ordenar_por_consumo(equipamentos)
+
+    # PB14 - T05: identificar os equipamentos com maior consumo
+    qtd_destaque = min(qtd_destaque, len(ranking))
+    maiores = ranking[:qtd_destaque]
+
+    consumo_total = sum(e["consumo"] for e in ranking)
+
+    print(
+        f"{'':<3} {'Pos':>4} | "
+        f"{'Cômodo':<15} | "
+        f"{'Equipamento':<18} | "
+        f"{'Consumo Mensal':<18} | "
+        f"{'% do total'}"
+    )
+    print("-" * 85)
+
+    for posicao, equip in enumerate(ranking, start=1):
+        percentual = (
+            equip["consumo"] / consumo_total * 100
+            if consumo_total > 0 else 0
+        )
+
+        # PB14 - T07: destacar os equipamentos de maior consumo
+        marcador = ">>>" if posicao <= qtd_destaque else ""
+
+        print(
+            f"{marcador:<3} {posicao:>3}º | "
+            f"{equip['comodo']:<15} | "
+            f"{equip['nome']:<18} | "
+            f"{equip['consumo']:>10.2f} kWh/mês | "
+            f"{percentual:>6.1f}%"
+        )
+
+    print("-" * 85)
+
+    # PB14 - T07: resumo dos maiores consumidores
+    consumo_maiores = sum(e["consumo"] for e in maiores)
+    percentual_maiores = (
+        consumo_maiores / consumo_total * 100
+        if consumo_total > 0 else 0
+    )
+
+    print(f">>> MAIORES CONSUMIDORES (top {qtd_destaque}):")
+    for equip in maiores:
+        print(
+            f"    - {equip['nome']} ({equip['comodo']}): "
+            f"{equip['consumo']:.2f} kWh/mês"
+        )
+    print(
+        f"    Juntos representam {percentual_maiores:.1f}% "
+        f"do consumo total da residência."
+    )
+    print("=" * 85)
+
+
 # Resumo do dimensionamento (extra, fora da ficha)
 def exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total):
     # contar a quantidade de cômodos
@@ -384,6 +487,9 @@ def executar_sistema():
     )
 
     print("=" * 85)
+
+    # PB14 - T01 a T05 e T07
+    exibir_ranking_consumo(imovel)
 
     # Resumo do dimensionamento (extra, fora da ficha)
     exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total)
