@@ -36,6 +36,31 @@ def obter_valor_kwh():
             print("Erro: digite um valor monetário válido.")
 
 
+# PB11 - T01 a T06
+def exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total):
+    # PB11 - T02: contar a quantidade de cômodos
+    qtd_comodos = len(imovel["comodos"])
+
+    # PB11 - T03: somar as unidades de todos os equipamentos
+    total_unidades = sum(item["qtd"] for item in relatorio_itens)
+
+    # PB11 - T05: formatar e exibir o resumo
+    print("\n" + "=" * 85)
+    print("RESUMO DO DIMENSIONAMENTO")
+    print("=" * 85)
+
+    # PB11 - T01: recuperar o nome do imóvel
+    print(f"Imóvel: {imovel['nome']}")
+    print(f"Quantidade de cômodos: {qtd_comodos}")
+    print(f"Quantidade de equipamentos: {total_unidades}")
+
+    # PB11 - T04: exibir consumo total e custo mensal estimado
+    print(f"Consumo total: {consumo_total:.2f} kWh/mês")
+    print(f"Valor do kWh: R$ {valor_kwh:.2f}")
+    print(f"Custo mensal estimado: R$ {custo_total:.2f}")
+    print("=" * 85)
+
+
 def executar_sistema():
     base_dados = obter_base_equipamentos()
 
@@ -280,6 +305,9 @@ def executar_sistema():
     )
 
     print("=" * 85)
+
+    # PB11 - T01 a T05
+    exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total)
 
 
 if __name__ == "__main__":
