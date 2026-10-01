@@ -200,6 +200,112 @@ def exibir_ranking_consumo(imovel, qtd_destaque=3):
     print("=" * 85)
 
 
+# PB18 - T04: regra para destacar os maiores consumidores
+# Um equipamento é considerado "grande consumidor" quando representa
+# pelo menos 20% do consumo total da residência. Se nenhum atingir
+# esse limite, o equipamento de maior consumo é destacado.
+PERCENTUAL_MINIMO_DESTAQUE = 20
+
+# Percentual de redução do tempo de uso usado na simulação de economia
+REDUCAO_SIMULADA = 20
+
+
+# PB18 - T05: estrutura para a apresentação das recomendações
+RECOMENDACOES = {
+    "Geladeira": "Evite abrir a porta com frequência e verifique a borracha de vedação.",
+    "Chuveiro Elétrico": "Reduza o tempo de banho e use a posição 'verão' em dias quentes.",
+    "Ar Condicionado": "Mantenha portas e janelas fechadas e regule a temperatura em 23 °C.",
+    "Televisão": "Desligue da tomada em vez de deixar em stand-by.",
+    "Lâmpada LED": "Aproveite a luz natural e apague as luzes de cômodos vazios.",
+    "Micro-ondas": "Planeje o uso para aquecer mais itens de uma vez.",
+    "Notebook": "Ative o modo de economia de energia e desligue quando não estiver em uso."
+}
+
+RECOMENDACAO_PADRAO = "Reduza o tempo de uso diário sempre que possível."
+
+
+# PB18 - T01 a T07
+def exibir_recomendacoes_economia(relatorio_itens, valor_kwh):
+    print("\n" + "=" * 85)
+    print("RECOMENDAÇÕES DE ECONOMIA")
+    print("=" * 85)
+
+    if not relatorio_itens:
+        print("Nenhum equipamento cadastrado.")
+        print("=" * 85)
+        return
+
+    # PB18 - T01: recuperar os consumos mensais calculados
+    # (cópia dos dados, sem alterar os itens originais - T07)
+    equipamentos = []
+    for item in relatorio_itens:
+        equipamentos.append({
+            "comodo": item["comodo"],
+            "nome": item["nome"],
+            "consumo": item["consumo"]
+        })
+
+    consumo_total = sum(e["consumo"] for e in equipamentos)
+
+    # PB18 - T02: comparar o consumo dos equipamentos cadastrados
+    # (reaproveita a comparação e a ordenação do PB14)
+    ordenados = ordenar_por_consumo(equipamentos)
+
+    # PB18 - T03: identificar os que mais contribuem para o consumo total
+    # PB18 - T04: aplicar a regra de destaque
+    oportunidades = []
+    for equip in ordenados:
+        percentual = (
+            equip["consumo"] / consumo_total * 100
+            if consumo_total > 0 else 0
+        )
+
+        if percentual >= PERCENTUAL_MINIMO_DESTAQUE:
+            oportunidades.append((equip, percentual))
+
+    if not oportunidades:
+        maior = ordenados[0]
+        percentual = (
+            maior["consumo"] / consumo_total * 100
+            if consumo_total > 0 else 0
+        )
+        oportunidades.append((maior, percentual))
+
+    print(
+        f"Critério: equipamentos com {PERCENTUAL_MINIMO_DESTAQUE}% ou mais "
+        f"do consumo total da residência."
+    )
+    print("-" * 85)
+
+    # PB18 - T06: exibir os equipamentos identificados como oportunidades
+    for numero, (equip, percentual) in enumerate(oportunidades, start=1):
+        # Simulação: economia ao reduzir o tempo de uso em 20%.
+        # Calculada em variáveis separadas, sem mudar o consumo (T07).
+        economia_kwh = equip["consumo"] * REDUCAO_SIMULADA / 100
+        economia_reais = economia_kwh * valor_kwh
+
+        dica = RECOMENDACOES.get(equip["nome"], RECOMENDACAO_PADRAO)
+
+        print(f"{numero}. {equip['nome']} ({equip['comodo']})")
+        print(
+            f"   Consumo atual: {equip['consumo']:.2f} kWh/mês "
+            f"({percentual:.1f}% do total)"
+        )
+        print(f"   Recomendação: {dica}")
+        print(
+            f"   Reduzindo {REDUCAO_SIMULADA}% do tempo de uso, economia estimada de "
+            f"{economia_kwh:.2f} kWh/mês (R$ {economia_reais:.2f})"
+        )
+        print()
+
+    # PB18 - T07: deixar claro que os valores calculados não foram alterados
+    print(
+        "* As recomendações são apenas sugestões. "
+        "Os valores de consumo calculados não foram alterados."
+    )
+    print("=" * 85)
+
+
 # Resumo do dimensionamento (extra, fora da ficha)
 def exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total):
     # contar a quantidade de cômodos
@@ -490,6 +596,9 @@ def executar_sistema():
 
     # PB14 - T01 a T05 e T07
     exibir_ranking_consumo(imovel)
+
+    # PB18 - T01 a T07
+    exibir_recomendacoes_economia(relatorio_itens, valor_kwh)
 
     # Resumo do dimensionamento (extra, fora da ficha)
     exibir_resumo(imovel, relatorio_itens, consumo_total, valor_kwh, custo_total)
