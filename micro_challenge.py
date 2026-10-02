@@ -220,7 +220,7 @@ def carregar_dataset(nome, pasta=PASTA_DATASETS):
 
 # PB19 - T02 a T08: catálogo de equipamentos fotovoltaicos
 def listar_datasets_pb19():
-    """PB19 - T06: carrega os três datasets integrados ao sistema."""
+    # PB19 - T06: carrega os três datasets integrados ao sistema.
     return {
         "modulos": carregar_dataset("modulos"),
         "inversores": carregar_dataset("inversores"),
@@ -229,7 +229,7 @@ def listar_datasets_pb19():
 
 
 def validar_quantidade_datasets(datasets):
-    """PB19 - T03: confere a quantidade mínima exigida."""
+    # PB19 - T03: confere a quantidade mínima exigida.
     minimo = {"modulos": 10, "inversores": 8, "baterias": 6}
     erros = []
     for nome, minimo_exigido in minimo.items():
@@ -240,7 +240,7 @@ def validar_quantidade_datasets(datasets):
 
 
 def validar_registros_pb19(datasets):
-    """PB19 - T04/T05: valida tipos, unidades, preços e rastreabilidade."""
+    # PB19 - T04/T05: valida tipos, unidades, preços e rastreabilidade.
     erros = []
     avisos = []
     ids_campos = {"modulos": "id_modulo", "inversores": "id_inversor", "baterias": "id_bateria"}
@@ -283,11 +283,11 @@ def validar_registros_pb19(datasets):
 
 
 def validar_pb19():
-    """Executa T03-T05 e informa se os datasets podem ser usados pelo sistema."""
+    # Executa T03-T05 e informa se os datasets podem ser usados pelo sistema.
     try:
         datasets = listar_datasets_pb19()
     except (FileNotFoundError, ValueError, KeyError) as erro:
-        print(f"\nPB19 - erro ao carregar datasets: {erro}")
+        print(f"\nErro ao carregar datasets: {erro}")
         return False
 
     erros = validar_quantidade_datasets(datasets)
@@ -295,7 +295,7 @@ def validar_pb19():
     erros.extend(erros_registros)
 
     print("\n" + "=" * 85)
-    print("VALIDAÇÃO DOS DATASETS - PB19")
+    print("VALIDAÇÃO DOS DATASETS")
     print("=" * 85)
     for nome, registros in datasets.items():
         print(f"{nome.capitalize():<12}: {len(registros)} registros")
@@ -308,7 +308,7 @@ def validar_pb19():
         return False
 
     print("\nEstrutura, quantidade, tipos, unidades e fontes obrigatórias: OK.")
-    print("\nT05 - CONFERÊNCIA MANUAL NECESSÁRIA:")
+    print("\nCONFERÊNCIA MANUAL NECESSÁRIA:")
     print("O código verifica rastreabilidade e consistência, mas a existência")
     print("do produto deve ser confirmada na fonte/datasheet registrado no CSV.")
     print("=" * 85)
@@ -398,7 +398,7 @@ def exibir_catalogo_pb19():
     # PB19 - T06: exibe os produtos vindos dos CSVs.
     datasets = listar_datasets_pb19()
     print("\n" + "=" * 85)
-    print("CATÁLOGO DE EQUIPAMENTOS - PB19")
+    print("CATÁLOGO DE EQUIPAMENTOS")
     print("=" * 85)
     ids = {"modulos": "id_modulo", "inversores": "id_inversor", "baterias": "id_bateria"}
     for nome, registros in datasets.items():
@@ -410,7 +410,7 @@ def exibir_catalogo_pb19():
 def executar_pb19():
     # Menu do PB19 sem alterar o fluxo residencial existente.
     while True:
-        print("\n=== PB19 - EQUIPAMENTOS FOTOVOLTAICOS ===")
+        print("\n=== EQUIPAMENTOS FOTOVOLTAICOS ===")
         print("1 - Validar datasets (T03-T05)")
         print("2 - Exibir catálogo (T06)")
         print("3 - Dimensionar e verificar compatibilidade (T07)")
