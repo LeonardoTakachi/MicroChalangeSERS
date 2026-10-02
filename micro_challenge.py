@@ -1,3 +1,5 @@
+from datetime import datetime
+
 def obter_base_equipamentos():
     # Base de dados exigida pelo enunciado
     return {
@@ -9,6 +11,207 @@ def obter_base_equipamentos():
         "6": {"nome": "Micro-ondas", "categoria": "Cozinha", "potencia": 1200},
         "7": {"nome": "Notebook", "categoria": "Escritório", "potencia": 65}
     }
+
+
+# PB19 - T01: estrutura e campos dos três datasets
+# (módulos, inversores e baterias). Os dados dos produtos entram em T02/T03.
+PASTA_DATASETS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "datasets")
+
+
+def _campo(nome, tipo, obrigatorio=True, valores=None):
+    # tipos: texto, inteiro, numero, booleano (0/1), enum, data (AAAA-MM-DD), url
+    return {
+        "nome": nome,
+        "tipo": tipo,
+        "obrigatorio": obrigatorio,
+        "valores": valores
+    }
+
+
+def _campos_comerciais():
+    # Campos comuns aos três datasets: certificação, preço e fontes rastreáveis
+    return [
+        _campo("selo_inmetro", "booleano"),
+        _campo("preco_brl", "numero"),
+        _campo("data_preco", "data"),
+        _campo("fonte_preco", "url"),
+        _campo("fonte_especificacao", "url")
+    ]
+
+
+def obter_estrutura_datasets():
+    modulos = [
+        _campo("id_modulo", "texto"),
+        _campo("fabricante", "texto"),
+        _campo("modelo", "texto"),
+        _campo("tecnologia_celula", "enum", valores=[
+            "monocristalino_perc", "monocristalino_topcon",
+            "monocristalino_hjt", "policristalino", "outro"
+        ]),
+        _campo("num_celulas", "inteiro"),
+        _campo("potencia_pico_wp", "numero"),
+        _campo("eficiencia_modulo_pct", "numero"),
+        _campo("vmp_v", "numero"),
+        _campo("imp_a", "numero"),
+        _campo("voc_v", "numero"),
+        _campo("isc_a", "numero"),
+        _campo("coef_temp_pmax_pct_c", "numero"),
+        _campo("coef_temp_voc_pct_c", "numero"),
+        _campo("coef_temp_isc_pct_c", "numero", obrigatorio=False),
+        _campo("comprimento_mm", "numero"),
+        _campo("largura_mm", "numero"),
+        _campo("espessura_mm", "numero"),
+        _campo("peso_kg", "numero"),
+        _campo("garantia_produto_anos", "inteiro"),
+        _campo("garantia_desempenho_anos", "inteiro")
+    ] + _campos_comerciais() + [
+        _campo("observacoes", "texto", obrigatorio=False)
+    ]
+
+    inversores = [
+        _campo("id_inversor", "texto"),
+        _campo("fabricante", "texto"),
+        _campo("modelo", "texto"),
+        _campo("tipo", "enum", valores=["string", "micro", "hibrido"]),
+        _campo("fase", "enum", valores=["monofasico", "bifasico", "trifasico"]),
+        _campo("tensao_saida_v", "numero"),
+        _campo("potencia_nominal_ca_w", "numero"),
+        _campo("potencia_max_ca_w", "numero"),
+        _campo("potencia_max_fv_wp", "numero"),
+        _campo("tensao_cc_max_v", "numero"),
+        _campo("tensao_mppt_min_v", "numero"),
+        _campo("tensao_mppt_max_v", "numero"),
+        _campo("tensao_partida_v", "numero", obrigatorio=False),
+        _campo("num_mppt", "inteiro"),
+        _campo("strings_por_mppt", "inteiro"),
+        _campo("corrente_max_mppt_a", "numero"),
+        _campo("corrente_curto_max_mppt_a", "numero"),
+        _campo("eficiencia_max_pct", "numero"),
+        _campo("aceita_bateria", "booleano"),
+        # Campos de bateria ficam vazios quando aceita_bateria = 0
+        _campo("bateria_tensao_min_v", "numero", obrigatorio=False),
+        _campo("bateria_tensao_max_v", "numero", obrigatorio=False),
+        _campo("bateria_corrente_max_carga_a", "numero", obrigatorio=False),
+        _campo("bateria_corrente_max_descarga_a", "numero", obrigatorio=False),
+        _campo("bateria_comunicacao", "enum", obrigatorio=False,
+               valores=["can", "rs485", "outro"]),
+        _campo("peso_kg", "numero", obrigatorio=False),
+        _campo("garantia_anos", "inteiro")
+    ] + _campos_comerciais() + [
+        _campo("observacoes", "texto", obrigatorio=False)
+    ]
+
+    baterias = [
+        _campo("id_bateria", "texto"),
+        _campo("fabricante", "texto"),
+        _campo("modelo", "texto"),
+        _campo("quimica", "enum", valores=[
+            "lifepo4", "litio_nmc", "chumbo_acido", "outro"
+        ]),
+        _campo("acoplamento", "enum", valores=["cc", "ca"]),
+        _campo("tensao_nominal_v", "numero"),
+        _campo("tensao_min_v", "numero"),
+        _campo("tensao_max_v", "numero"),
+        _campo("capacidade_nominal_kwh", "numero"),
+        _campo("capacidade_util_kwh", "numero"),
+        _campo("profundidade_descarga_pct", "numero"),
+        _campo("potencia_continua_w", "numero"),
+        _campo("potencia_pico_w", "numero"),
+        _campo("corrente_max_carga_a", "numero"),
+        _campo("corrente_max_descarga_a", "numero"),
+        _campo("eficiencia_ciclo_pct", "numero"),
+        _campo("ciclos_vida", "inteiro"),
+        _campo("comunicacao", "enum", valores=["can", "rs485", "outro"]),
+        _campo("modular", "booleano"),
+        _campo("modulos_max_paralelo", "inteiro"),
+        _campo("peso_kg", "numero", obrigatorio=False),
+        _campo("garantia_anos", "inteiro")
+    ] + _campos_comerciais() + [
+        _campo("inversores_compativeis", "texto"),
+        _campo("observacoes", "texto", obrigatorio=False)
+    ]
+
+    return {
+        "modulos": {"arquivo": "modulos.csv", "campos": modulos},
+        "inversores": {"arquivo": "inversores.csv", "campos": inversores},
+        "baterias": {"arquivo": "baterias.csv", "campos": baterias}
+    }
+
+
+def _converter_valor(campo, texto, numero_linha):
+    nome = campo["nome"]
+    texto = texto.strip()
+
+    if texto == "":
+        if campo["obrigatorio"]:
+            raise ValueError(
+                f"Linha {numero_linha}: o campo '{nome}' é obrigatório."
+            )
+        return None
+
+    try:
+        if campo["tipo"] == "inteiro":
+            return int(texto)
+
+        if campo["tipo"] == "numero":
+            return float(texto)
+
+        if campo["tipo"] == "booleano":
+            if texto not in ("0", "1"):
+                raise ValueError
+            return int(texto)
+
+        if campo["tipo"] == "data":
+            datetime.strptime(texto, "%Y-%m-%d")
+            return texto
+
+        if campo["tipo"] == "url":
+            if not texto.lower().startswith(("http://", "https://")):
+                raise ValueError
+            return texto
+
+        if campo["tipo"] == "enum":
+            if texto not in campo["valores"]:
+                raise ValueError
+            return texto
+
+    except ValueError:
+        raise ValueError(
+            f"Linha {numero_linha}: valor inválido '{texto}' "
+            f"para o campo '{nome}' (tipo {campo['tipo']})."
+        )
+
+    return texto
+
+
+# Lê um dataset conferindo se as colunas seguem a estrutura definida
+def carregar_dataset(nome, pasta=PASTA_DATASETS):
+    estrutura = obter_estrutura_datasets()
+
+    if nome not in estrutura:
+        raise ValueError(f"Dataset desconhecido: '{nome}'.")
+
+    campos = estrutura[nome]["campos"]
+    esperado = [c["nome"] for c in campos]
+    caminho = os.path.join(pasta, estrutura[nome]["arquivo"])
+
+    with open(caminho, newline="", encoding="utf-8") as arquivo:
+        leitor = csv.DictReader(arquivo)
+
+        if leitor.fieldnames != esperado:
+            raise ValueError(
+                f"As colunas de '{estrutura[nome]['arquivo']}' "
+                "não seguem a estrutura definida."
+            )
+
+        registros = []
+        for numero_linha, linha in enumerate(leitor, start=2):
+            registros.append({
+                c["nome"]: _converter_valor(c, linha[c["nome"]] or "", numero_linha)
+                for c in campos
+            })
+
+    return registros
 
 
 def exibir_menu(base_dados):
