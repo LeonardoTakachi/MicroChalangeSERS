@@ -27,6 +27,17 @@ O sistema calcula:
 - Entrada do valor do kWh;
 - Cálculo do custo mensal estimado;
 - Exibição de relatório final com os dados cadastrados.
+- Cálculo do custo mensal individual de cada equipamento;
+- Remoção de equipamentos com confirmação e atualização do consumo;
+- Ranking dos equipamentos por consumo;
+- Identificação dos equipamentos de maior consumo;
+- Recomendações de economia com simulação de redução de uso;
+- Resumo do dimensionamento da residência;
+- Catálogo de equipamentos fotovoltaicos por datasets;
+- Validação da estrutura, quantidade, tipos, unidades, preços e fontes dos datasets;
+- Pré-dimensionamento e verificação de compatibilidade entre módulos e inversores;
+- Identificação de baterias compatíveis quando disponíveis;
+- Cálculo de orçamento dos equipamentos fotovoltaicos;
 
 ## Cálculos utilizados
 
@@ -42,6 +53,10 @@ Consumo (kWh/mês) = Potência (W) × Quantidade × Horas/dia × 30 / 1000
 Custo mensal (R$) = Consumo total (kWh/mês) × Valor do kWh
 ```
 
+### Pré-dimensionamento fotovoltaico
+
+O sistema calcula a energia diária média e estima a potência fotovoltaica necessária considerando as horas de sol pico informadas pelo sistema. Em seguida, verifica combinações de módulos e inversores disponíveis nos datasets.
+
 ## Product Backlog
 
 O desenvolvimento foi organizado a partir dos itens definidos no Product Backlog:
@@ -50,7 +65,12 @@ O desenvolvimento foi organizado a partir dos itens definidos no Product Backlog
 - PB02 - Cômodo;
 - PB04 - Consumo;
 - PB06 - Relatório / Consumo Total;
-- PB09 - Custo.
+- PB09 - Custo;
+- PB10 – Custo por equipamento;
+- PB11 - Resumo-Dimensionamento;
+- PB14 – Identificação dos Equipamentos de Maior Consumo;
+- PB18 – Recomendação de Economia;
+- PB19 – Base de Equipamentos;
 
 As Tasks correspondentes também estão identificadas no código por meio de comentários, facilitando a relação entre implementação e backlog.
 
@@ -58,8 +78,7 @@ As Tasks correspondentes também estão identificadas no código por meio de com
 
 O acompanhamento das atividades foi realizado por meio de um quadro Kanban no Trello:
 
-CP4 - [https://trello.com/b/fr7tB7n4/cp4-sers](https://trello.com/invite/b/6a9b655dfa817f09831ab595/ATTI2ab191a7edfa9e2a702690beb3710a150FE35865/cp5-sers)
-CP5 - https://trello.com/b/fMpfIZM3/cp5-sers
+https://trello.com/b/fr7tB7n4/cp5-sers
 
 ## Estrutura do repositório
 
@@ -68,6 +87,10 @@ MicroChalangeSERS/
 ├── micro_challenge.py
 ├── ficha_produto_backlog.pdf
 ├── Product_Backlog_Dimensionamento_Energetico_Residencial.pdf
+├── datasets
+    ├── baterias.csv
+    ├── inversores.csv
+    ├── modulos.csv
 └── README.md
 ```
 
