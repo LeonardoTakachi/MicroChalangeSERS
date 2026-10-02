@@ -1,4 +1,7 @@
 from datetime import datetime
+import csv
+import os
+import math
 
 def obter_base_equipamentos():
     # Base de dados exigida pelo enunciado
@@ -213,6 +216,237 @@ def carregar_dataset(nome, pasta=PASTA_DATASETS):
 
     return registros
 
+
+
+# PB19 - T02 a T08: catálogo de equipamentos fotovoltaicos
+def listar_datasets_pb19():
+    """PB19 - T06: carrega os três datasets integrados ao sistema."""
+    return {
+        "modulos": carregar_dataset("modulos"),
+        "inversores": carregar_dataset("inversores"),
+        "baterias": carregar_dataset("baterias"),
+    }
+
+
+def validar_quantidade_datasets(datasets):
+    """PB19 - T03: confere a quantidade mínima exigida."""
+    minimo = {"modulos": 10, "inversores": 8, "baterias": 6}
+    erros = []
+    for nome, minimo_exigido in minimo.items():
+        qtd = len(datasets.get(nome, []))
+        if qtd < minimo_exigido:
+            erros.append(f"{nome}: {qtd} encontrados; mínimo = {minimo_exigido}.")
+    return erros
+
+
+def validar_registros_pb19(datasets):
+    """PB19 - T04/T05: valida tipos, unidades, preços e rastreabilidade."""
+    erros = []
+    avisos = []
+    ids_campos = {"modulos": "id_modulo", "inversores": "id_inversor", "baterias": "id_bateria"}
+
+    for nome, registros in datasets.items():
+        ids = set()
+        for numero, item in enumerate(registros, start=1):
+            id_campo = ids_campos[nome]
+            ident = item[id_campo]
+            if ident in ids:
+                erros.append(f"{nome}, registro {numero}: ID duplicado '{ident}'.")
+            ids.add(ident)
+
+            if item["preco_brl"] <= 0:
+                erros.append(f"{nome}, {ident}: preço deve ser maior que zero.")
+            if item["data_preco"] > datetime.now().strftime("%Y-%m-%d"):
+                erros.append(f"{nome}, {ident}: data_preco está no futuro.")
+            if not item["fonte_preco"] or not item["fonte_especificacao"]:
+                erros.append(f"{nome}, {ident}: fontes são obrigatórias.")
+
+            if nome == "modulos":
+                if item["potencia_pico_wp"] <= 0 or item["voc_v"] <= 0 or item["vmp_v"] <= 0:
+                    erros.append(f"{nome}, {ident}: potência/tensões inválidas.")
+            elif nome == "inversores":
+                if item["potencia_nominal_ca_w"] <= 0:
+                    erros.append(f"{nome}, {ident}: potência nominal inválida.")
+                if item["tensao_mppt_max_v"] > item["tensao_cc_max_v"]:
+                    erros.append(f"{nome}, {ident}: MPPT máximo supera Vcc máximo.")
+            else:
+                if item["capacidade_nominal_kwh"] <= 0:
+                    erros.append(f"{nome}, {ident}: capacidade inválida.")
+                if item["capacidade_util_kwh"] > item["capacidade_nominal_kwh"]:
+                    erros.append(f"{nome}, {ident}: capacidade útil supera nominal.")
+
+            # A validação automática comprova rastreabilidade mínima.
+            # A confirmação de que o modelo realmente existe deve ser feita
+            # conferindo o datasheet/fonte indicada (T05).
+            avisos.append(f"{nome}, {ident}: conferir manualmente fabricante/modelo na fonte.")
+    return erros, avisos
+
+
+def validar_pb19():
+    """Executa T03-T05 e informa se os datasets podem ser usados pelo sistema."""
+    try:
+        datasets = listar_datasets_pb19()
+    except (FileNotFoundError, ValueError, KeyError) as erro:
+        print(f"\nPB19 - erro ao carregar datasets: {erro}")
+        return False
+
+    erros = validar_quantidade_datasets(datasets)
+    erros_registros, avisos = validar_registros_pb19(datasets)
+    erros.extend(erros_registros)
+
+    print("\n" + "=" * 85)
+    print("VALIDAÇÃO DOS DATASETS - PB19")
+    print("=" * 85)
+    for nome, registros in datasets.items():
+        print(f"{nome.capitalize():<12}: {len(registros)} registros")
+
+    if erros:
+        print("\nERROS:")
+        for erro in erros:
+            print(f"- {erro}")
+        print("=" * 85)
+        return False
+
+    print("\nEstrutura, quantidade, tipos, unidades e fontes obrigatórias: OK.")
+    print("\nT05 - CONFERÊNCIA MANUAL NECESSÁRIA:")
+    print("O código verifica rastreabilidade e consistência, mas a existência")
+    print("do produto deve ser confirmada na fonte/datasheet registrado no CSV.")
+    print("=" * 85)
+    return True
+
+
+def dimensionar_sistema_pb19(consumo_mensal_kwh, horas_sol_pico=4.5):
+    # PB19 - T07: pré-dimensionamento e verificação de compatibilidade
+    if consumo_mensal_kwh <= 0 or horas_sol_pico <= 0:
+        raise ValueError("Consumo e horas de sol pico devem ser maiores que zero.")
+
+    datasets = listar_datasets_pb19()
+    energia_diaria = consumo_mensal_kwh / 30
+    potencia_necessaria_w = (energia_diaria / horas_sol_pico) * 1000
+    candidatos = []
+
+    for modulo in datasets["modulos"]:
+        qtd = math.ceil(potencia_necessaria_w / modulo["potencia_pico_wp"])
+        potencia_fv = qtd * modulo["potencia_pico_wp"]
+
+        for inversor in datasets["inversores"]:
+            if potencia_fv > inversor["potencia_max_fv_wp"]:
+                continue
+            max_serie = math.floor(inversor["tensao_cc_max_v"] / modulo["voc_v"])
+            min_serie = max(1, math.ceil(inversor["tensao_mppt_min_v"] / modulo["vmp_v"]))
+            if min_serie > max_serie:
+                continue
+            if modulo["isc_a"] > inversor["corrente_curto_max_mppt_a"]:
+                continue
+
+            candidatos.append({
+                "modulo": modulo,
+                "inversor": inversor,
+                "qtd_modulos": qtd,
+                "potencia_fv_wp": potencia_fv,
+                "modulos_serie_min": min_serie,
+                "modulos_serie_max": max_serie,
+                "baterias_compativeis": [],
+            })
+
+    candidatos.sort(key=lambda x: (x["potencia_fv_wp"] - potencia_necessaria_w, x["qtd_modulos"]))
+
+    for opcao in candidatos[:5]:
+        inversor = opcao["inversor"]
+        if not inversor["aceita_bateria"]:
+            continue
+        tokens = [t.strip().lower() for t in inversor["modelo"].split(";")]
+        tokens += [inversor["fabricante"].lower()]
+        for bateria in datasets["baterias"]:
+            compat = bateria["inversores_compativeis"].lower()
+            if any(t and t in compat for t in tokens):
+                opcao["baterias_compativeis"].append(bateria)
+
+    return {
+        "energia_diaria_kwh": energia_diaria,
+        "potencia_fv_necessaria_kw": potencia_necessaria_w / 1000,
+        "opcoes": candidatos[:5],
+    }
+
+
+def calcular_orcamento_pb19(opcao, quantidade_baterias=0):
+    # PB19 - T08: calcula o orçamento dos equipamentos selecionados.
+    if quantidade_baterias < 0:
+        raise ValueError("Quantidade de baterias não pode ser negativa.")
+    modulo = opcao["modulo"]
+    inversor = opcao["inversor"]
+    bateria = None
+    if quantidade_baterias:
+        if not opcao["baterias_compativeis"]:
+            raise ValueError("Não há bateria compatível cadastrada para este inversor.")
+        bateria = opcao["baterias_compativeis"][0]
+
+    subtotal_modulos = opcao["qtd_modulos"] * modulo["preco_brl"]
+    subtotal_inversor = inversor["preco_brl"]
+    subtotal_bateria = quantidade_baterias * bateria["preco_brl"] if bateria else 0
+    total = subtotal_modulos + subtotal_inversor + subtotal_bateria
+
+    return {
+        "modulos": {"modelo": modulo["modelo"], "quantidade": opcao["qtd_modulos"], "subtotal": subtotal_modulos},
+        "inversor": {"modelo": inversor["modelo"], "quantidade": 1, "subtotal": subtotal_inversor},
+        "bateria": {"modelo": bateria["modelo"] if bateria else None, "quantidade": quantidade_baterias, "subtotal": subtotal_bateria},
+        "total": total,
+    }
+
+
+def exibir_catalogo_pb19():
+    # PB19 - T06: exibe os produtos vindos dos CSVs.
+    datasets = listar_datasets_pb19()
+    print("\n" + "=" * 85)
+    print("CATÁLOGO DE EQUIPAMENTOS - PB19")
+    print("=" * 85)
+    ids = {"modulos": "id_modulo", "inversores": "id_inversor", "baterias": "id_bateria"}
+    for nome, registros in datasets.items():
+        print(f"\n{nome.upper()} ({len(registros)} registros)")
+        for item in registros:
+            print(f"- {item[ids[nome]]} | {item['fabricante']} {item['modelo']} | R$ {item['preco_brl']:.2f}")
+
+
+def executar_pb19():
+    # Menu do PB19 sem alterar o fluxo residencial existente.
+    while True:
+        print("\n=== PB19 - EQUIPAMENTOS FOTOVOLTAICOS ===")
+        print("1 - Validar datasets (T03-T05)")
+        print("2 - Exibir catálogo (T06)")
+        print("3 - Dimensionar e verificar compatibilidade (T07)")
+        print("4 - Dimensionar + orçamento (T07-T08)")
+        print("0 - Voltar")
+        opcao = input("Escolha: ").strip()
+
+        if opcao == "1":
+            validar_pb19()
+        elif opcao == "2":
+            try:
+                exibir_catalogo_pb19()
+            except (FileNotFoundError, ValueError) as erro:
+                print(f"Erro: {erro}")
+        elif opcao in ("3", "4"):
+            try:
+                consumo = float(input("Consumo mensal (kWh): ").replace(",", "."))
+                resultado = dimensionar_sistema_pb19(consumo)
+                print(f"\nPotência FV estimada: {resultado['potencia_fv_necessaria_kw']:.2f} kWp")
+                if not resultado["opcoes"]:
+                    print("Nenhuma combinação compatível foi encontrada.")
+                    continue
+                for i, item in enumerate(resultado["opcoes"], 1):
+                    print(f"\n[{i}] {item['modulo']['modelo']} + {item['inversor']['modelo']}")
+                    print(f"    Módulos: {item['qtd_modulos']}")
+                    print(f"    Série possível: {item['modulos_serie_min']} a {item['modulos_serie_max']} módulos")
+                    print(f"    Baterias compatíveis: {len(item['baterias_compativeis'])}")
+                    if opcao == "4":
+                        orc = calcular_orcamento_pb19(item)
+                        print(f"    Orçamento sem bateria: R$ {orc['total']:.2f}")
+            except (ValueError, FileNotFoundError) as erro:
+                print(f"Erro: {erro}")
+        elif opcao == "0":
+            return
+        else:
+            print("Opção inválida.")
 
 def exibir_menu(base_dados):
     print("\n--- EQUIPAMENTOS DISPONÍVEIS ---")
@@ -809,21 +1043,17 @@ def executar_sistema():
 
 if __name__ == "__main__":
     while True:
-        executar_sistema()
-
-        while True:
-            try:
-                cadastro = int(
-                    input(
-                        "\nDeseja cadastrar outro imóvel? "
-                        "Qualquer número = Sim / 2 = Não: "
-                    )
-                )
-                break
-
-            except ValueError:
-                print("Valor inválido! Digite um número.")
-
-        if cadastro == 2:
+        print("\n=== SISTEMA ===")
+        print("1 - Dimensionamento residencial")
+        print("2 - Gestão de Equipamentos Fotovoltaicos")
+        print("0 - Sair")
+        escolha = input("Escolha: ").strip()
+        if escolha == "1":
+            executar_sistema()
+        elif escolha == "2":
+            executar_pb19()
+        elif escolha == "0":
             print("Muito obrigado, finalizando sistema...")
             break
+        else:
+            print("Opção inválida.")
