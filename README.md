@@ -1,4 +1,4 @@
-# MicroChalangeSERS
+# Sistema de Dimensionamento Energético Residencial
  
 Projeto desenvolvido em Python para dimensionamento energético residencial. O sistema permite cadastrar um imóvel, seus cômodos e equipamentos, calcular o consumo mensal de energia, dimensionar um sistema solar fotovoltaico (com ou sem baterias) e gerar uma proposta com orçamento, economia estimada e payback simples.
  
