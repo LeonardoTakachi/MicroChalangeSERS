@@ -2,9 +2,30 @@
  
 Projeto desenvolvido em Python para dimensionamento energético residencial. O sistema permite cadastrar um imóvel, seus cômodos e equipamentos, calcular o consumo mensal de energia, dimensionar um sistema solar fotovoltaico (com ou sem baterias) e gerar uma proposta com orçamento, economia estimada e payback simples.
  
-A partir da Sprint 3, o sistema conta com uma **interface web em Flask** que integra todo o fluxo, da residência cadastrada até a proposta ao cliente.
+A partir da Sprint 4, o sistema conta com uma **interface web em Flask** que integra todo o fluxo, da residência cadastrada até a proposta ao cliente.
+
+---
+
+## Integrantes
  
-> Os resultados são estimativas para fins acadêmicos e não substituem um projeto elétrico assinado por profissional habilitado.
+- Daniel Vieira Santos - RM 573326
+- Gustavo Bitencourt Lopes - RM 568885
+- Giovane Salazar Fioravante - RM 570396
+- Leonardo Basile Takachi - RM 569066
+
+---
+
+## Links
+Interface: https://microchalangesers.onrender.com/
+
+Kanban:
+ 
+- CP4 e CP5: https://trello.com/b/fr7tB7n4/cp5-sers
+- CP6: https://trello.com/b/S19KeIjw/cp6-sers
+
+Video (Youtube): https://youtu.be/4nIQ_oryxPw
+
+---
  
 ## Objetivo
  
@@ -21,7 +42,7 @@ O sistema calcula:
 - o orçamento, a economia estimada e o payback simples.
 ## Funcionalidades
  
-### Sprints 1 e 2
+### CP4 e CP5:
  
 - Cadastro e identificação do imóvel;
 - Cadastro de múltiplos cômodos;
@@ -44,7 +65,8 @@ O sistema calcula:
 - Resumo do dimensionamento da residência;
 - Catálogo de equipamentos fotovoltaicos por datasets;
 - Validação da estrutura, quantidade, tipos, unidades, preços e fontes dos datasets.
-### Sprint 3
+  
+### CP6
  
 - Residências cadastradas salvas em JSON e reutilizadas, sem novo cadastro;
 - Recurso solar com HSP (fonte registrada) e PR (justificativa obrigatória);
@@ -59,6 +81,9 @@ O sistema calcula:
 - Proposta consolidada, com salvamento do projeto, reabertura e exportação em HTML;
 - Validações com mensagens claras e tabela de diagnóstico quando nenhuma combinação é compatível;
 - Interface web integrada, sem necessidade de editar código, datasets ou fazer cálculos externos.
+
+---
+
 ## Cálculos utilizados
  
 ### Consumo mensal
@@ -129,12 +154,14 @@ Payback simples  = Investimento / Economia_anual
 ```
  
 Como a bateria não aumenta a energia compensada, a economia é a mesma nos dois cenários. A bateria aumenta o investimento e o payback, e o benefício é a autonomia em caso de queda de energia.
+
+---
  
 ## Product Backlog
  
 O desenvolvimento foi organizado a partir dos itens definidos no Product Backlog.
  
-### Sprints 1 e 2
+### CP4 e CP5
  
 - PB01 - Imóvel;
 - PB02 - Cômodo;
@@ -146,7 +173,8 @@ O desenvolvimento foi organizado a partir dos itens definidos no Product Backlog
 - PB14 – Identificação dos Equipamentos de Maior Consumo;
 - PB18 – Recomendação de Economia;
 - PB19 – Base de Equipamentos.
-### Sprint 3 (Product Backlog Final)
+  
+### CP6 (Product Backlog Final)
  
 | PB | Descrição |
 |---|---|
@@ -173,13 +201,9 @@ O desenvolvimento foi organizado a partir dos itens definidos no Product Backlog
 | PB21 | Exportação da proposta (desejável) |
  
 As Tasks correspondentes também estão identificadas no código por meio de comentários, facilitando a relação entre implementação e backlog. A numeração dos PBs da Sprint 3 é independente da numeração das Sprints 1 e 2.
- 
-## Kanban
- 
-O acompanhamento das atividades foi realizado por meio de um quadro Kanban no Trello:
- 
-- CP4 e CP5: https://trello.com/b/fr7tB7n4/cp5-sers
-- CP6: https://trello.com/b/S19KeIjw/cp6-sers
+
+---
+  
 ## Interface web
  
 O fluxo da aplicação segue as etapas abaixo:
@@ -192,6 +216,8 @@ O fluxo da aplicação segue as etapas abaixo:
 | 4 | Baterias | Definir autonomia e escolher a bateria |
 | 5 | Proposta | Ver orçamento, comparativo, economia, payback e conclusão; salvar e baixar em HTML |
 | - | Projetos salvos | Reabrir e baixar propostas anteriores |
+
+---
  
 ## Estrutura do repositório
  
@@ -226,6 +252,9 @@ MicroChalangeSERS/
 - `app.py`: rotas da interface web em Flask.
 - `datasets/`: equipamentos e preços, separados da lógica de cálculo. Para atualizar um preço ou incluir um equipamento, basta editar o CSV.
 - `dados/`: residências e projetos salvos em JSON, criada automaticamente.
+
+---
+
 ## Tecnologias utilizadas
  
 - Python 3
@@ -235,67 +264,9 @@ MicroChalangeSERS/
 - Git
 - GitHub
 - Trello
-O motor de cálculo (`micro_challenge.py`) usa apenas recursos nativos do Python. A biblioteca externa necessária é somente o Flask, para a interface web.
- 
-## Como executar
- 
-Clone o repositório:
- 
-```bash
-git clone https://github.com/LeonardoTakachi/MicroChalangeSERS.git
-```
- 
-Acesse a pasta do projeto:
- 
-```bash
-cd MicroChalangeSERS
-```
- 
-Crie e ative o ambiente virtual (recomendado):
- 
-```bash
-python -m venv .venv
- 
-# Windows (PowerShell)
-.venv\Scripts\Activate.ps1
- 
-# Linux/macOS
-source .venv/bin/activate
-```
- 
-Instale a dependência:
- 
-```bash
-pip install -r requirements.txt
-```
- 
-Execute a interface web:
- 
-```bash
-python app.py
-```
- 
-Acesse **http://127.0.0.1:5000** no navegador.
- 
-Caso necessário, utilize `python3` no lugar de `python`.
- 
-### Execução no terminal (sem interface web)
- 
-```bash
-python micro_challenge.py
-```
- 
-| Opção | Função |
-|---|---|
-| 1 | Cadastro da residência, consumo e custo (salva a residência automaticamente) |
-| 2 | Gestão e validação dos datasets fotovoltaicos |
-| 3 | Proposta fotovoltaica completa |
-| 0 | Sair |
- 
-### Variável de ambiente
- 
-Defina `FLASK_SECRET_KEY` com uma chave própria quando o sistema for usado fora do ambiente de desenvolvimento. O `app.py` inicia com `debug=True` para uso local.
- 
+
+---
+
 ## Limitações
  
 - O payback é simples: não considera juros, reajuste tarifário, degradação dos módulos, bandeiras tarifárias nem Fio B. Não é previsão financeira exata.
@@ -304,6 +275,9 @@ Defina `FLASK_SECRET_KEY` com uma chave própria quando o sistema for usado fora
 - O orçamento cobre apenas módulos, inversor e baterias, sem instalação, projeto, proteções, cabeamento ou impostos.
 - Os preços e as especificações dos datasets devem ser conferidos nas fontes registradas em cada CSV.
 - Os arquivos de `dados/` são locais. Em hospedagens com disco temporário, residências e projetos salvos podem ser perdidos a cada reinício.
+
+---
+  
 ## Solução de problemas
  
 | Problema | Causa provável | Solução |
@@ -311,11 +285,5 @@ Defina `FLASK_SECRET_KEY` com uma chave própria quando o sistema for usado fora
 | `TemplateNotFound` | A pasta `templates/` não está ao lado do `app.py` | Mantenha os arquivos `.html` dentro de `templates/` |
 | "Não foi possível carregar os datasets" | CSVs ausentes ou fora do padrão | Confira a pasta `datasets/` e rode a opção 2 do terminal |
 | "Nenhuma combinação compatível..." | Residência pequena para os inversores cadastrados ou dado trocado no CSV | Consulte a tabela de diagnóstico na tela do Sistema FV |
- 
-## Integrantes
- 
-- Daniel Vieira Santos - RM 573326
-- Gustavo Bitencourt Lopes - RM 568885
-- Giovane Salazar Fioravante - RM 570396
-- Leonardo Basile Takachi - RM 569066
- 
+
+ ---
