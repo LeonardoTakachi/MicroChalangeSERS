@@ -78,7 +78,8 @@ As Tasks correspondentes também estão identificadas no código por meio de com
 
 O acompanhamento das atividades foi realizado por meio de um quadro Kanban no Trello:
 
-https://trello.com/b/fr7tB7n4/cp5-sers
+- CP4 e CP5: https://trello.com/b/fr7tB7n4/cp5-sers
+- CP6: https://trello.com/b/S19KeIjw/cp6-sers
 
 ## Estrutura do repositório
 
