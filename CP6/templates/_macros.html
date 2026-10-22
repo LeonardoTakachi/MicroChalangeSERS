@@ -1,0 +1,10 @@
+{% macro tabela(cabecalho, linhas) %}
+<div class="rolagem"><table>
+<thead><tr>{% for c in cabecalho %}<th>{{ c }}</th>{% endfor %}</tr></thead>
+<tbody>{% for l in linhas %}<tr>{% for c in l %}<td>{{ c }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+</table></div>
+{% endmacro %}
+
+{% macro medida(rotulo, valor, unidade) %}
+<div class="medida"><b>{{ valor }}</b> <span>{{ unidade }}</span><small>{{ rotulo }}</small></div>
+{% endmacro %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabela %}
+{% block titulo %}Baterias · Dimensionamento solar{% endblock %}
+{% block conteudo %}
+<h1>Armazenamento com baterias</h1>
+<p class="apoio">Defina a autonomia desejada para comparar o sistema convencional com um sistema híbrido. Com baterias, o inversor passa a ser um modelo híbrido compatível.</p>
+
+<form method="post">
+<label style="display:flex;gap:10px;align-items:center"><input type="checkbox" name="usar" style="width:auto;margin:0" {{ 'checked' if bat.usar }}> Comparar com sistema com baterias</label>
+<div class="grade">
+<label>Autonomia desejada (h)<input name="autonomia" inputmode="decimal" value="{{ bat.autonomia }}"></label>
+<label>Parcela da carga atendida (%)<input name="fracao" inputmode="decimal" value="{{ bat.fracao }}"></label>
+</div>
+
+{% if detalhes %}
+<h3>Módulos e inversor híbrido</h3>
+<div class="rolagem"><table class="opcoes"><tbody>
+{% for o in detalhes.bases %}
+<tr><td><input type="radio" name="base" id="b{{ loop.index }}" value="{{ chave(o) }}" {{ 'checked' if chave(o) == chave(detalhes.base) }}></td>
+<td><label for="b{{ loop.index }}" style="margin:0;font-weight:400">{{ o.qtd_modulos }} × {{ o.modulo.modelo }} + {{ o.inversor.fabricante }} {{ o.inversor.modelo }}</label></td>
+<td>{{ num(o.potencia_instalada_kwp, 2) }} kWp</td><td>{{ brl(o.custo_fv) }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+
+<h3>Baterias compatíveis</h3>
+<div class="rolagem"><table class="opcoes">
+<thead><tr><th></th><th>Bateria</th><th>Qtd</th><th>Ah/unid.</th><th>kWh nominais</th><th>kWh úteis</th><th>Autonomia obtida</th><th>Custo</th></tr></thead>
+<tbody>
+{% for b in detalhes.opcoes %}
+<tr><td><input type="radio" name="bateria" id="t{{ loop.index }}" value="{{ b.bateria.id_bateria }}" {{ 'checked' if b.bateria.id_bateria == detalhes.escolhida.bateria.id_bateria }}></td>
+<td><label for="t{{ loop.index }}" style="margin:0;font-weight:400">{{ b.bateria.fabricante }} {{ b.bateria.modelo }}</label></td>
+<td>{{ b.quantidade }}</td><td>{{ num(b.capacidade_ah_unitaria, 0) }}</td>
+<td>{{ num(b.capacidade_total_kwh, 2) }}</td><td>{{ num(b.capacidade_util_kwh, 2) }}</td>
+<td>{{ num(b.autonomia_obtida_h, 1) }} h</td><td>{{ brl(b.custo_total) }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+{% for aviso in detalhes.escolhida.avisos %}<div class="msg aviso">{{ aviso }}</div>{% endfor %}
+{% endif %}
+<button>Atualizar dimensionamento</button>
+</form>
+
+{% if erro %}<div class="msg erro" role="alert" style="margin-top:16px">{{ erro }}</div>{% endif %}
+{% if cenario %}
+<h2>Resultado com baterias</h2>
+{{ tabela(['Item', 'Resultado'], resumo(cenario)) }}
+{% endif %}
+<div class="acoes"><a class="botao" href="{{ url_for('proposta') }}">Ver a proposta</a></div>
+{% endblock %}

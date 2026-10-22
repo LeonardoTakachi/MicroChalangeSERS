@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block titulo %}Projetos salvos · Dimensionamento solar{% endblock %}
+{% block conteudo %}
+<h1>Projetos salvos</h1>
+<p class="apoio">Cada projeto guarda a residência, a configuração FV, as baterias, o orçamento e os resultados econômicos.</p>
+{% if projetos %}
+<div class="rolagem"><table>
+<thead><tr><th>Projeto</th><th></th></tr></thead>
+<tbody>{% for p in projetos %}
+<tr><td>{{ p }}</td><td><a href="{{ url_for('ver_projeto', nome=p) }}">Abrir</a> · <a href="{{ url_for('baixar_projeto', nome=p) }}">Baixar HTML</a></td></tr>
+{% endfor %}</tbody></table></div>
+{% else %}
+<p class="vazio">Nenhum projeto salvo. Gere uma proposta e use "Salvar projeto".</p>
+<a class="botao" href="{{ url_for('residencia') }}">Começar um dimensionamento</a>
+{% endif %}
+{% endblock %}

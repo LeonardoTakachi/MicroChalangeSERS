@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}Dimensionamento solar{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--fundo:#f2f4f6;--papel:#fff;--tinta:#16212b;--suave:#5b6975;--linha:#d3dae0;
+--acao:#0e5a63;--acao-esc:#0a444b;--sol:#e3a008;--erro:#a4282a;--ok:#1d6b3a;--aviso:#8a5a00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--fundo);color:var(--tinta);font:16px/1.55 "IBM Plex Sans","Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.layout{display:grid;grid-template-columns:230px minmax(0,1fr);min-height:100vh}
+.trilho{background:var(--tinta);color:#dfe6ea;padding:24px 18px;position:sticky;top:0;height:100vh}
+.trilho .marca{font-weight:600;font-size:17px;line-height:1.3;margin:0 0 24px;color:#fff}
+.trilho ol{list-style:none;margin:0;padding:0;counter-reset:e}
+.trilho li{counter-increment:e}
+.trilho a{display:flex;gap:10px;align-items:center;padding:9px 10px;border-radius:6px;color:#c3ced5;text-decoration:none}
+.trilho a::before{content:counter(e);width:24px;height:24px;border-radius:50%;border:1px solid #5b6975;display:grid;place-items:center;font-size:13px;flex:none}
+.trilho a:hover{background:#22303c}
+.trilho a.ativa{background:#22303c;color:#fff}
+.trilho a.ativa::before{background:var(--sol);border-color:var(--sol);color:var(--tinta);font-weight:600}
+.trilho .extra{margin-top:20px;border-top:1px solid #34424e;padding-top:14px}
+.trilho .extra a::before{display:none}
+main{padding:32px clamp(16px,4vw,48px);max-width:1040px;width:100%}
+h1{font-size:28px;margin:0 0 6px;line-height:1.2}
+h2{font-size:20px;margin:34px 0 10px}h3{font-size:17px;margin:22px 0 8px}
+p.apoio{color:var(--suave);margin:0 0 22px;max-width:70ch}
+label{display:block;font-weight:500;margin:0 0 14px}
+input,select,textarea{display:block;width:100%;margin-top:5px;padding:9px 11px;border:1px solid var(--linha);border-radius:6px;font:inherit;background:var(--papel);color:var(--tinta)}
+textarea{min-height:76px}
+button,.botao{display:inline-block;background:var(--acao);color:#fff;border:0;border-radius:6px;padding:10px 18px;font:inherit;font-weight:500;cursor:pointer;text-decoration:none}
+button:hover,.botao:hover{background:var(--acao-esc)}
+button.sec,.botao.sec{background:transparent;color:var(--acao);border:1px solid var(--acao)}
+button.sec:hover,.botao.sec:hover{background:#e3eff0}
+:focus-visible{outline:3px solid var(--sol);outline-offset:2px}
+.msg{padding:11px 14px;border-radius:6px;margin:0 0 16px;border-left:4px solid}
+.msg.erro{background:#fbe9e9;border-color:var(--erro);color:#6e1a1c}
+.msg.ok{background:#e6f4ea;border-color:var(--ok);color:#154d29}
+.msg.aviso{background:#fff3d6;border-color:var(--sol);color:#5c3c00}
+.rolagem{overflow-x:auto;margin:6px 0 16px;background:var(--papel);border:1px solid var(--linha);border-radius:6px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid var(--linha);vertical-align:top}
+th{background:#e9eef1;font-weight:600}
+tr:last-child td{border-bottom:0}
+.medidas{display:flex;flex-wrap:wrap;gap:12px 36px;margin:10px 0 18px}
+.medida b{font-size:26px;font-weight:600}.medida span{color:var(--suave)}
+.medida small{display:block;color:var(--suave);font-size:14px}
+.destaque{border-left:6px solid var(--sol);padding:6px 0 6px 16px;margin:18px 0 22px}
+.destaque b{font-size:40px;line-height:1.1}.destaque span{font-size:20px;color:var(--suave)}
+.destaque small{display:block;color:var(--suave);margin-top:4px}
+.grade{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+.linha-eq{display:grid;grid-template-columns:1.2fr 1.6fr .6fr .7fr auto;gap:10px;align-items:end;margin-bottom:10px}
+.linha-eq label{margin:0}.linha-eq .remover{padding:9px 12px}
+.opcoes td:first-child{width:36px}.opcoes input{width:auto;margin:0}
+.acoes{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+.vazio{color:var(--suave)}
+.conclusao{background:var(--papel);border:1px solid var(--linha);border-left:6px solid var(--acao);padding:14px 18px;border-radius:6px}
+.nota{font-size:13px;color:var(--suave)}
+@media(max-width:860px){
+.layout{grid-template-columns:1fr}
+.trilho{position:static;height:auto;padding:12px}
+.trilho .marca{margin-bottom:8px}.trilho ol{display:flex;overflow-x:auto;gap:4px}
+.trilho a{white-space:nowrap}.trilho .extra{margin-top:8px;padding-top:8px}
+.grade{grid-template-columns:1fr}.linha-eq{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="trilho" aria-label="Etapas do dimensionamento">
+<p class="marca">Dimensionamento<br>solar residencial</p>
+<ol>
+{% for n, rota, nome in [(1,'residencia','Residência'),(2,'solar','Recurso solar'),(3,'sistema','Sistema FV'),(4,'baterias','Baterias'),(5,'proposta','Proposta')] %}
+<li><a href="{{ url_for(rota) }}" class="{{ 'ativa' if etapa == n }}" {% if etapa == n %}aria-current="step"{% endif %}>{{ nome }}</a></li>
+{% endfor %}
+</ol>
+<div class="extra"><a href="{{ url_for('projetos') }}" class="{{ 'ativa' if etapa == 6 }}">Projetos salvos</a></div>
+</nav>
+<main>
+{% with mensagens = get_flashed_messages(with_categories=true) %}
+{% for categoria, texto in mensagens %}<div class="msg {{ categoria }}" role="alert">{{ texto }}</div>{% endfor %}
+{% endwith %}
+{% block conteudo %}{% endblock %}
+</main>
+</div>
+</body>
+</html>

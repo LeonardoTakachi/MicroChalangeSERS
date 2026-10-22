@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% from "_macros.html" import medida %}
+{% block titulo %}Recurso solar · Dimensionamento solar{% endblock %}
+{% block conteudo %}
+<h1>Recurso solar</h1>
+<p class="apoio">Informe a disponibilidade solar do local. A fonte da HSP e a justificativa do PR ficam registradas na proposta.</p>
+<div class="medidas">
+{{ medida('Consumo mensal', num(demanda.e_mes_kwh, 1), 'kWh/mês') }}
+{{ medida('Consumo diário', num(demanda.e_dia_kwh, 2), 'kWh/dia') }}
+{{ medida('Potência instalada das cargas', num(demanda.potencia_instalada_kw, 2), 'kW') }}
+</div>
+
+{% if erro %}<div class="msg erro" role="alert">{{ erro }}</div>{% endif %}
+{% if p_fv %}
+<div class="destaque">
+<b>{{ num(p_fv, 2) }}</b> <span>kWp</span>
+<small>Potência fotovoltaica necessária: E_dia ÷ (HSP × PR) = {{ num(demanda.e_dia_kwh, 2) }} ÷ ({{ v.hsp }} × {{ v.pr }})</small>
+</div>
+{% endif %}
+
+<form method="post">
+<div class="grade">
+<label>Horas de Sol Pico, HSP (h/dia)<input name="hsp" inputmode="decimal" value="{{ v.hsp }}" required></label>
+<label>Fator global de desempenho, PR (0 a 1)<input name="pr" inputmode="decimal" value="{{ v.pr }}" required></label>
+<label>Fonte da HSP<input name="fonte_hsp" value="{{ v.fonte_hsp }}" required></label>
+<label>Tarifa de energia (R$/kWh)<input name="tarifa" inputmode="decimal" value="{{ v.tarifa }}" required></label>
+</div>
+<label>Justificativa do PR<textarea name="justificativa_pr" required>{{ v.justificativa_pr }}</textarea></label>
+<label>Custo de disponibilidade
+<select name="disp">{% for k, nome in disponibilidades.items() %}<option value="{{ k }}" {{ 'selected' if k == v.disp }}>{{ nome }}</option>{% endfor %}</select></label>
+<button>Calcular e escolher equipamentos</button>
+</form>
+{% endblock %}

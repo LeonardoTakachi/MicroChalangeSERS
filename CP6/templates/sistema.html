@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabela %}
+{% block titulo %}Sistema FV · Dimensionamento solar{% endblock %}
+{% block conteudo %}
+<h1>Sistema fotovoltaico</h1>
+<p class="apoio">Potência necessária: <b>{{ num(ctx.p_fv, 2) }} kWp</b>. As combinações abaixo vêm dos datasets e já passaram na checagem de compatibilidade. O ranking pondera custo, excesso de potência e razão DC/AC, não só o preço.</p>
+
+{% if erro %}
+<div class="msg erro" role="alert">{{ erro }}</div>
+<a class="botao sec" href="{{ url_for('solar') }}">Revisar recurso solar</a>
+{% else %}
+<form method="post">
+<div class="rolagem"><table class="opcoes">
+<thead><tr><th></th><th>Módulos</th><th>Inversor</th><th>kWp instalado</th><th>DC/AC</th><th>Arranjo</th><th>Equipamentos FV</th></tr></thead>
+<tbody>
+{% for o in ranking %}
+<tr><td><input type="radio" name="escolha" id="o{{ loop.index }}" value="{{ chave(o) }}" {{ 'checked' if chave(o) == chave(escolhida) }}></td>
+<td><label for="o{{ loop.index }}" style="margin:0;font-weight:400">{{ o.qtd_modulos }} × {{ o.modulo.fabricante }} {{ o.modulo.modelo }}</label></td>
+<td>{{ o.inversor.fabricante }} {{ o.inversor.modelo }}</td>
+<td>{{ num(o.potencia_instalada_kwp, 2) }}</td><td>{{ num(o.razao_dc_ac, 2) }}</td>
+<td>{{ o.arranjo.descricao }}</td><td>{{ brl(o.custo_fv) }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+<button class="sec">Usar a opção marcada</button>
+</form>
+
+<h2>Resultado da opção escolhida</h2>
+{{ tabela(['Item', 'Resultado'], resumo(cenario)) }}
+{% for aviso in cenario.avisos %}<p class="nota">{{ aviso }}</p>{% endfor %}
+<div class="acoes"><a class="botao" href="{{ url_for('baterias') }}">Continuar para as baterias</a></div>
+{% endif %}
+{% endblock %}

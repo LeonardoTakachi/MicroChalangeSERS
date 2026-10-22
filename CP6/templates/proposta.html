@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabela, medida %}
+{% block titulo %}Proposta · Dimensionamento solar{% endblock %}
+{% block conteudo %}
+{% set d = prop.demanda %}{% set p = prop.premissas %}
+<h1>Proposta: {{ prop.residencia }}</h1>
+<p class="apoio">Gerada em {{ prop.gerado_em.replace('T', ' às ') }}. Valores estimados.</p>
+<div class="medidas">
+{{ medida('Consumo mensal', num(d.e_mes_kwh, 1), 'kWh') }}
+{{ medida('Consumo diário', num(d.e_dia_kwh, 2), 'kWh') }}
+{{ medida('Potência instalada das cargas', num(d.potencia_instalada_kw, 2), 'kW') }}
+{{ medida('Potência FV necessária', num(prop.p_fv_necessaria_kw, 2), 'kWp') }}
+</div>
+<p class="nota">HSP {{ num(p.hsp, 2) }} h/dia (fonte: {{ p.fonte_hsp }}). PR {{ num(p.pr, 2) }}: {{ p.justificativa_pr }}</p>
+
+{% for chave, titulo in [('sem_bateria', 'Cenário sem baterias'), ('com_bateria', 'Cenário com baterias')] %}
+{% if prop[chave] %}
+<h2>{{ titulo }}</h2>
+{{ tabela(['Item', 'Resultado'], resumo(prop[chave])) }}
+<h3>Orçamento</h3>
+{{ tabela(['Equipamento', 'Fabricante/modelo', 'Qtd', 'Preço unit.', 'Subtotal'], orcamento(prop[chave])) }}
+{% endif %}
+{% endfor %}
+
+<h2>Comparativo dos cenários</h2>
+{{ tabela(['Critério', 'Sem baterias', 'Com baterias'], prop.comparativo) }}
+<h2>Conclusão</h2>
+<p class="conclusao">{{ prop.conclusao }}</p>
+<p class="nota">O payback é simples: não considera juros, reajuste tarifário, degradação dos módulos, bandeiras tarifárias ou Fio B. Não é previsão financeira exata.</p>
+
+<div class="acoes">
+{% if atual %}
+<form method="post"><button>Salvar projeto</button></form>
+<a class="botao sec" href="{{ url_for('baixar_proposta') }}">Baixar proposta em HTML</a>
+{% else %}
+<a class="botao sec" href="{{ url_for('baixar_projeto', nome=nome_projeto) }}">Baixar proposta em HTML</a>
+<a class="botao sec" href="{{ url_for('projetos') }}">Voltar aos projetos</a>
+{% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import tabela, medida %}
+{% block titulo %}Residência · Dimensionamento solar{% endblock %}
+{% macro linha(c='', e='', q='1', h='1') %}
+<div class="linha-eq">
+<label>Cômodo<input name="comodo" value="{{ c }}" placeholder="Ex.: Cozinha"></label>
+<label>Equipamento<select name="equip">{% for k, i in base.items() %}<option value="{{ k }}" {{ 'selected' if k == e }}>{{ i.nome }} ({{ i.potencia }} W)</option>{% endfor %}</select></label>
+<label>Quantidade<input name="qtd" type="number" min="1" step="1" value="{{ q }}"></label>
+<label>Horas por dia<input name="horas" type="number" min="0.1" max="24" step="0.1" value="{{ h }}"></label>
+<button type="button" class="sec remover" aria-label="Remover equipamento">Remover</button>
+</div>
+{% endmacro %}
+{% block conteudo %}
+<h1>Escolha a residência</h1>
+<p class="apoio">O consumo e as cargas vêm da residência cadastrada. Eles não precisam ser digitados de novo nas próximas etapas.</p>
+
+{% if nomes %}
+<form method="post">
+<input type="hidden" name="acao" value="selecionar">
+<label>Residências cadastradas
+<select name="nome">{% for n in nomes %}<option value="{{ n }}" {{ 'selected' if n == atual }}>{{ n }}</option>{% endfor %}</select></label>
+<button>Usar esta residência</button>
+</form>
+{% else %}
+<p class="vazio">Nenhuma residência cadastrada. Cadastre a primeira logo abaixo.</p>
+{% endif %}
+
+{% if demanda %}
+<h2>{{ atual }}</h2>
+<div class="medidas">
+{{ medida('Consumo mensal', num(demanda.e_mes_kwh, 1), 'kWh/mês') }}
+{{ medida('Consumo diário', num(demanda.e_dia_kwh, 2), 'kWh/dia') }}
+{{ medida('Potência instalada das cargas', num(demanda.potencia_instalada_kw, 2), 'kW') }}
+</div>
+<div class="rolagem"><table>
+<thead><tr><th>Cômodo</th><th>Equipamento</th><th>Qtd</th><th>Horas/dia</th><th>Consumo (kWh/mês)</th></tr></thead>
+<tbody>{% for i in demanda.itens %}<tr><td>{{ i.comodo }}</td><td>{{ i.nome }}</td><td>{{ i.qtd }}</td><td>{{ i.horas }}</td><td>{{ num(i.consumo_kwh_mes, 2) }}</td></tr>{% endfor %}</tbody>
+</table></div>
+<a class="botao" href="{{ url_for('solar') }}">Continuar para o recurso solar</a>
+{% endif %}
+
+<h2>Cadastrar nova residência</h2>
+<form method="post" id="cadastro">
+<input type="hidden" name="acao" value="cadastrar">
+<div class="grade">
+<label>Nome da residência<input name="nome_novo" value="{{ request.form.get('nome_novo', '') }}" required></label>
+<label>Tarifa de energia (R$/kWh)<input name="tarifa" inputmode="decimal" value="{{ request.form.get('tarifa', '0,95') }}" required></label>
+</div>
+<div id="linhas">
+{% for c, e, q, h in linhas %}{{ linha(c, e, q, h) }}{% endfor %}
+</div>
+<div class="acoes">
+<button type="button" class="sec" id="adicionar">Adicionar equipamento</button>
+<button>Salvar residência e continuar</button>
+</div>
+</form>
+<template id="modelo">{{ linha() }}</template>
+<script>
+const lista = document.getElementById('linhas'), modelo = document.getElementById('modelo');
+const adicionar = () => lista.appendChild(modelo.content.cloneNode(true));
+document.getElementById('adicionar').onclick = adicionar;
+lista.addEventListener('click', e => { if (e.target.matches('.remover')) e.target.closest('.linha-eq').remove(); });
+if (!lista.children.length) adicionar();
+</script>
+{% endblock %}
