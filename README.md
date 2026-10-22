@@ -40,6 +40,9 @@ O sistema calcula:
 - a geração estimada e o percentual do consumo atendido;
 - o armazenamento necessário para uma autonomia desejada;
 - o orçamento, a economia estimada e o payback simples.
+
+---
+  
 ## Funcionalidades
  
 ### CP4 e CP5:
@@ -223,35 +226,38 @@ O fluxo da aplicação segue as etapas abaixo:
  
 ```text
 MicroChalangeSERS/
-├── app.py
-├── micro_challenge.py
-├── requirements.txt
-├── ficha_produto_backlog.pdf
-├── Product_Backlog_Dimensionamento_Energetico_Residencial.pdf
-├── Sprint_3_Product_Backlog_Final.pdf
+├── CP4-5
+│   ├── ficha_produto_backlog.pdf
+│   ├── micro_challenge.py
+├── CP6
+│   ├── datasets
+│       ├── baterias.csv
+│       ├── inversores.csv
+│       └── modulos.csv
+│   ├── templates
+│       ├── _macros.html
+│       ├── base.html
+│       ├── baterias.html
+│       ├── projetos.html
+│       ├── proposta.html
+│       ├── residencia.html
+│       ├── sistema.html
+│       └── solar.html
+│   ├── app.py
+│   ├── micro_challenge.py
+│   └── requirements.txt
 ├── datasets
 │   ├── baterias.csv
 │   ├── inversores.csv
 │   └── modulos.csv
-├── templates
-│   ├── _macros.html
-│   ├── base.html
-│   ├── baterias.html
-│   ├── projetos.html
-│   ├── proposta.html
-│   ├── residencia.html
-│   ├── sistema.html
-│   └── solar.html
-├── dados                 (gerada ao executar; não versionar)
-│   ├── residencias
-│   └── projetos
+├── ficha_produto_backlog.pdf
+├── Product_Backlog_Dimensionamento_Energetico_Residencial.pdf
 └── README.md
 ```
  
 - `micro_challenge.py`: motor de cálculo, validações, persistência e relatório. Também funciona sozinho, no terminal.
 - `app.py`: rotas da interface web em Flask.
 - `datasets/`: equipamentos e preços, separados da lógica de cálculo. Para atualizar um preço ou incluir um equipamento, basta editar o CSV.
-- `dados/`: residências e projetos salvos em JSON, criada automaticamente.
 
 ---
 
@@ -274,7 +280,6 @@ MicroChalangeSERS/
 - A economia assume compensação de créditos de energia.
 - O orçamento cobre apenas módulos, inversor e baterias, sem instalação, projeto, proteções, cabeamento ou impostos.
 - Os preços e as especificações dos datasets devem ser conferidos nas fontes registradas em cada CSV.
-- Os arquivos de `dados/` são locais. Em hospedagens com disco temporário, residências e projetos salvos podem ser perdidos a cada reinício.
 
 ---
   
